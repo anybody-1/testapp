@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>app</title>
+    <style>
+        /* 动画 */
+        @keyframes change {
+            0% {margin-left:100%;opacity: 0}
+            50% {margin-left: 50%;opacity: 0.5}
+            100% {margin-left: 0%;opacity: 1}
+        }
+        html,body {
+            margin: 0;
+            padding: 0;
+            position: relative;
+            width: 100%;
+        }
+        .selected {
+            margin: 10px;
+        }
+        .select {
+            background-color: black;
+            color:white;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .msg {
+            margin: 10px;
+        }
+        .city {
+            position: absolute;
+            width: 100%;
+        }
+        .area {
+            position: absolute;
+            width: 100%;
+        }
+        .street {
+            position: absolute;
+            width: 100%;
+        }
+        .city > div {
+            animation: 0.3s change linear;
+            border-bottom: 1px solid #ccc;
+            line-height: 40px;
+            cursor: pointer;
+            padding-left: 20px;
+        }
+        .area > div {
+            animation: 0.3s change linear;
+            border-bottom: 1px solid #ccc;
+            line-height: 40px;
+            cursor: pointer;
+            padding-left: 20px;        
+        }
+        .street > div {
+            animation: 0.3s change linear;
+            border-bottom: 1px solid #ccc;
+            line-height: 40px;
+            cursor: pointer;
+            padding-left: 20px;
+        }
+        .active {
+            display: none;
+            transition: all 1.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="selected">
+        <button class="select">选择城市</button>
+        <div class="msg">
+            <span>未选择</span>
+        </div>    
+    </div>
+    <div class="city">
+    </div>
+    <div class="area">
+    </div>
+    <div class="street">
+    </div>
+ <script>
+var cityname,areaname,streetname
+var sectionA=sectionB=sectionC=sectionD=false
+// 监听user
+$('.select').onclick = function () {
+    sectionB=true
+    if ($('.city').innerText) {
+        $('.city').innerText = ''
+        $('.city').classList.remove('active')
+        getCity(function (data) {
+        $('.selected').classList.add('active')
+        data.forEach(function (city) {
+            var div = document.createElement('div')
+            div.className = city
+            div.innerText = city
+            $('.city').appendChild(div)
+        })
+    })
+    } else{
+        getCity(function (data) {
+        $('.selected').classList.add('active')
+        data.forEach(function (city) {
+            var div = document.createElement('div')
+            div.className = city
+            div.innerText = city
+            $('.city').appendChild(div)
+        })
+    })
+    }
+    
+}
+
+$('.city').onclick=function(e){
+                sectionC=true
+                sectionB=false
+                var _city= e.target.className
+                cityname = _city
+                if($('.area').innerText){
+                    $('.area').innerText = ''
+                    $('.area').classList.remove('active')
+                    getArea(_city, function (data) {
+                        $('.city').classList.add('active')
+                        data.forEach(function (area) {
+                            var _area = area
+                            var div = document.createElement('div')
+                            div.className = area
+                            div.innerText = area
+                            $('.area').appendChild(div)
+                        })
+                    }) 
+                }else{
+                    getArea(_city, function (data) {
+                        $('.city').classList.add('active')
+                        data.forEach(function (area) {
+                            var _area = area
+                            var div = document.createElement('div')
+                            div.className = area
+                            div.innerText = area
+                            $('.area').appendChild(div) 
+            })
+        })
+                }
+                
+}
+
+$('.area').onclick=function(e){
+                sectionD=true
+                sectionC=false
+                var _area= e.target.className
+                areaname = _area
+                if($('.street').innerText){
+                    $('.street').innerText=''
+                    $('.street').classList.remove('active')
+                    getStreet(_area, function (data) {
+                    $('.area').classList.add('active')
+                    data.forEach(function (street) {
+                        var _street = street
+                        var div = document.createElement('div')
+                        div.className = street
+                        div.innerText = street
+                        $('.street').appendChild(div)
+                
+            })
+        }) 
+                }else{
+                    getStreet(_area, function (data) {
+                    $('.area').classList.add('active')
+                    data.forEach(function (street) {
+                        var _street = street
+                        var div = document.createElement('div')
+                        div.className = street
+                        div.innerText = street
+                        $('.street').appendChild(div)
+                
+            })
+        })
+                }
+                
+}
+
+$('.street').onclick=function(e){
+                sectionD=false
+                sectionA=true
+                var _street= e.target.className
+                streetname = _street
+                var msg = cityname+'-'+areaname+'-'+streetname
+                $('.street').classList.add('active')
+                $('.selected').classList.remove('active')
+                $('.msg>span').innerText = msg
+}
+
+//浏览器回退
+history.pushState(null, null, document.URL);
+window.addEventListener("popstate", function(e) {
+    console.log(e)
+    history.pushState(null, null, document.URL)
+    if(sectionA){ 
+        console.log(sectionA) 
+        $('.selected').classList.add('active')
+        $('.street').classList.remove('active') 
+        sectionA = false
+        sectionD = true     
+    }else if(sectionB){
+        console.log(sectionB)  
+        $('.city').classList.add('active')
+        $('.selected').classList.remove('active')
+    }else if(sectionC){
+        console.log(sectionC)  
+        $('.area').classList.add('active')
+        $('.city').classList.remove('active')
+        sectionC = false
+        sectionB = true
+    }else if(sectionD){
+        console.log(sectionD)  
+        $('.street').classList.add('active')
+        $('.area').classList.remove('active')
+        sectionD = false
+        sectionC = true
+    }
+}, false);
+//函数工具-获取对应数据
+function $(selector) {
+    return document.querySelector(selector)
+}
+function getCity(callback) {
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', 'json/city.json', true)
+    xhr.onload = function () {
+        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
+            callback(JSON.parse(this.responseText))
+        } else {
+            console.log('获取数据失败')
+        }
+    }
+    xhr.onerror = function () {
+        console.log('网络异常')
+    }
+    xhr.send()
+}
+function getArea(city,callback) {
+    var area = 'json/area'+city
+    var url = area+'.json'
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', url, true)
+    xhr.onload = function() {
+        if((xhr.status >= 200 && xhr.status < 300) || xhr.status ===304) {
+            callback(JSON.parse(this.responseText))
+        }else {
+            console.log('获取数据失败')
+        }
+    } 
+    xhr.onerror = function() {
+        console.log('网络异常')
+    }
+    xhr.send()
+}
+function getStreet(area,callback) {
+    var street = 'json/street'+area
+    var url = street+'.json'
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', url, true)
+    xhr.onload = function() {
+        if((xhr.status >= 200 && xhr.status < 300) || xhr.status ===304) {
+            callback(JSON.parse(this.responseText))
+        }else {
+            console.log('获取数据失败')
+        }
+    } 
+    xhr.onerror = function() {
+        console.log('网络异常')
+    }
+    xhr.send()
+}
+ </script> 
+</body>
+</html>
